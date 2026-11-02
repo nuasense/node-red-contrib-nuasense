@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-nuasense",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Node-RED nodes for NuaSense: send weather-station readings to NuaSense and read back the station intelligence (tonight's low, the next spray window, ET0, leaf wetness, disease risk).",
   "license": "MIT",
   "author": "NuaSense <manuel@nuasense.com> (https://nuasense.com)",

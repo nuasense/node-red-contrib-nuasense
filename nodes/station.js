@@ -28,7 +28,7 @@ module.exports = function (RED) {
 
     node.on("input", async (msg, send, done) => {
       send = send || function () { node.send.apply(node, arguments); };
-      const fields = toEcowitt(msg.payload, { deviceId, stationType: "node-red-contrib-nuasense_V0.1.0" });
+      const fields = toEcowitt(msg.payload, { deviceId, stationType: "node-red-contrib-nuasense_V0.1.2" });
       const body = encodeForm(fields);
       try {
         const res = await fetch(url, {

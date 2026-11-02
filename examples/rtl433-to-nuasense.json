@@ -1,0 +1,93 @@
+[
+  {
+    "id": "rtl433-tab",
+    "type": "tab",
+    "label": "rtl_433 → NuaSense",
+    "disabled": false,
+    "info": "rtl_433 publishes one JSON event per packet to MQTT. This flow keeps one sensor (model + id), maps its fields to the NuaSense station node and sends at most once a minute. Set your MQTT broker, the sensor's model and id in the function node, and the station token in the station node."
+  },
+  {
+    "id": "rtl433-broker",
+    "type": "mqtt-broker",
+    "name": "local broker",
+    "broker": "localhost",
+    "port": "1883",
+    "clientid": "",
+    "autoConnect": true,
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true
+  },
+  {
+    "id": "rtl433-in",
+    "type": "mqtt in",
+    "z": "rtl433-tab",
+    "name": "rtl_433/events",
+    "topic": "rtl_433/events",
+    "qos": "0",
+    "datatype": "json",
+    "broker": "rtl433-broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "x": 140,
+    "y": 100,
+    "wires": [["rtl433-map"]]
+  },
+  {
+    "id": "rtl433-map",
+    "type": "function",
+    "z": "rtl433-tab",
+    "name": "keep my sensor, map fields",
+    "func": "// The sensor you own. rtl_433 prints both in every event.\nconst MODEL = \"Fineoffset-WH65B\";\nconst ID = 227;\n\nconst e = msg.payload;\nif (!e || e.model !== MODEL || Number(e.id) !== ID) return null;\n\nconst n = (v) => (v === undefined || v === null || v === \"\" ? undefined : Number(v));\nconst wind = n(e.wind_avg_m_s) ?? (n(e.wind_avg_km_h) !== undefined ? n(e.wind_avg_km_h) / 3.6 : undefined);\nconst gust = n(e.wind_max_m_s) ?? (n(e.wind_max_km_h) !== undefined ? n(e.wind_max_km_h) / 3.6 : undefined);\n\nmsg.payload = {\n  temperature: n(e.temperature_C),\n  humidity: n(e.humidity),\n  pressure: n(e.pressure_hPa),\n  wind_speed: wind,\n  wind_gusts: gust,\n  wind_direction: n(e.wind_dir_deg),\n  rain_total_mm: n(e.rain_mm),\n  light_lux: n(e.light_lux),\n  uv: n(e.uvi) ?? n(e.uv),\n};\nreturn msg;",
+    "outputs": 1,
+    "x": 380,
+    "y": 100,
+    "wires": [["rtl433-rate"]]
+  },
+  {
+    "id": "rtl433-rate",
+    "type": "delay",
+    "z": "rtl433-tab",
+    "name": "at most one a minute",
+    "pauseType": "rate",
+    "timeout": "5",
+    "timeoutUnits": "seconds",
+    "rate": "1",
+    "nbRateUnits": "1",
+    "rateUnits": "minute",
+    "randomFirst": "1",
+    "randomLast": "5",
+    "randomUnits": "seconds",
+    "drop": true,
+    "allowrate": false,
+    "outputs": 1,
+    "x": 620,
+    "y": 100,
+    "wires": [["rtl433-station"]]
+  },
+  {
+    "id": "rtl433-station",
+    "type": "nuasense-station",
+    "z": "rtl433-tab",
+    "name": "→ NuaSense",
+    "server": "ingest.nuasense.com",
+    "deviceId": "rtl433-wh65b-227",
+    "x": 830,
+    "y": 100,
+    "wires": [["rtl433-debug"]]
+  },
+  {
+    "id": "rtl433-debug",
+    "type": "debug",
+    "z": "rtl433-tab",
+    "name": "receiver answer",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "x": 1030,
+    "y": 100,
+    "wires": []
+  }
+]
