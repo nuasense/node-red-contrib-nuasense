@@ -1,4 +1,4 @@
-# node-red-contrib-nuasense
+# NuaSense for Node-RED
 
 Two nodes that connect a Node-RED flow to [NuaSense](https://nuasense.com):
 
