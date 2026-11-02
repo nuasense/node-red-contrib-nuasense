@@ -1,0 +1,66 @@
+<script type="text/javascript">
+  RED.nodes.registerType("nuasense-intelligence", {
+    category: "NuaSense",
+    color: "#dbf5ee",
+    defaults: {
+      name: { value: "" },
+      baseUrl: { value: "https://api.nuasense.com", required: true },
+      stationId: { value: "" },
+      what: { value: "first-look", required: true }
+    },
+    credentials: {
+      apiKey: { type: "password" }
+    },
+    inputs: 1,
+    outputs: 1,
+    icon: "font-awesome/fa-lightbulb-o",
+    label: function () { return this.name || `NuaSense ${this.what || "first-look"}`; },
+    paletteLabel: "NuaSense intelligence"
+  });
+</script>
+
+<script type="text/html" data-template-name="nuasense-intelligence">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-apiKey"><i class="fa fa-key"></i> API key</label>
+    <input type="password" id="node-input-apiKey" placeholder="nua_live_…">
+  </div>
+  <div class="form-tips">
+    From platform.nuasense.com → API Keys, with the <code>ingest:write</code> scope (it covers reading your own stations too).
+  </div>
+  <div class="form-row">
+    <label for="node-input-what"><i class="fa fa-question"></i> Ask for</label>
+    <select id="node-input-what">
+      <option value="first-look">First look: tonight, next spray window, station check</option>
+      <option value="derived">Computed hourly values: ET0, leaf wetness, spray quality</option>
+      <option value="stations">The stations on this account</option>
+    </select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-stationId"><i class="fa fa-map-marker"></i> Station id</label>
+    <input type="text" id="node-input-stationId" placeholder="or set msg.station_id">
+  </div>
+  <div class="form-row">
+    <label for="node-input-baseUrl"><i class="fa fa-globe"></i> API</label>
+    <input type="text" id="node-input-baseUrl">
+  </div>
+</script>
+
+<script type="text/html" data-help-name="nuasense-intelligence">
+  <p>Reads what NuaSense computes for one of your stations.</p>
+  <h3>Input</h3>
+  <dl class="message-properties">
+    <dt class="optional">station_id <span class="property-type">string</span></dt>
+    <dd>Overrides the station id set on the node.</dd>
+  </dl>
+  <h3>Output</h3>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">object</span></dt>
+    <dd>The API's JSON. First look: <code>tonight</code> (<code>low_c</code>, <code>at</code>, <code>frost</code>), <code>spray</code> (<code>window.from</code>/<code>to</code>, <code>wind_max_ms</code>), <code>station_check</code> (<code>verdict</code>, <code>reading_c</code>, <code>model_c</code>). Computed values: <code>data[]</code> rows with <code>et0_hour</code>, <code>lwd_hour</code>, <code>spray_quality_label</code>, <code>vpd</code>, <code>delta_t</code> and more.</dd>
+  </dl>
+  <h3>Details</h3>
+  <p>Trigger it with an inject node every 15–60 minutes; the values change hourly. Reading your own stations is inside the free API allowance of a station owner.</p>
+</script>

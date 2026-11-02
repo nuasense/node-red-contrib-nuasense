@@ -1,0 +1,99 @@
+[
+  {
+    "id": "nuasense-example-tab",
+    "type": "tab",
+    "label": "NuaSense: send readings, read the first look",
+    "disabled": false,
+    "info": "Replace the function node with your station's values. Put the station path token into the station node and an API key into the intelligence node."
+  },
+  {
+    "id": "nuasense-example-inject",
+    "type": "inject",
+    "z": "nuasense-example-tab",
+    "name": "every 60 s",
+    "props": [{ "p": "payload" }],
+    "repeat": "60",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 130,
+    "y": 80,
+    "wires": [["nuasense-example-reading"]]
+  },
+  {
+    "id": "nuasense-example-reading",
+    "type": "function",
+    "z": "nuasense-example-tab",
+    "name": "the reading (metric)",
+    "func": "msg.payload = {\n  temperature: 17.4,\n  humidity: 90,\n  pressure: 759.9,\n  wind_speed: 2.0,\n  wind_direction: 110,\n  rain_total_mm: 254.0,\n  solar_wm2: 226\n};\nreturn msg;",
+    "outputs": 1,
+    "x": 350,
+    "y": 80,
+    "wires": [["nuasense-example-station"]]
+  },
+  {
+    "id": "nuasense-example-station",
+    "type": "nuasense-station",
+    "z": "nuasense-example-tab",
+    "name": "North field → NuaSense",
+    "server": "ingest.nuasense.com",
+    "deviceId": "north-field",
+    "x": 600,
+    "y": 80,
+    "wires": [["nuasense-example-debug1"]]
+  },
+  {
+    "id": "nuasense-example-debug1",
+    "type": "debug",
+    "z": "nuasense-example-tab",
+    "name": "receiver answer",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "x": 830,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "nuasense-example-inject2",
+    "type": "inject",
+    "z": "nuasense-example-tab",
+    "name": "every 30 min",
+    "props": [{ "p": "payload" }],
+    "repeat": "1800",
+    "once": true,
+    "onceDelay": 5,
+    "payload": "",
+    "payloadType": "date",
+    "x": 130,
+    "y": 180,
+    "wires": [["nuasense-example-look"]]
+  },
+  {
+    "id": "nuasense-example-look",
+    "type": "nuasense-intelligence",
+    "z": "nuasense-example-tab",
+    "name": "first look",
+    "baseUrl": "https://api.nuasense.com",
+    "stationId": "north-field",
+    "what": "first-look",
+    "x": 350,
+    "y": 180,
+    "wires": [["nuasense-example-debug2"]]
+  },
+  {
+    "id": "nuasense-example-debug2",
+    "type": "debug",
+    "z": "nuasense-example-tab",
+    "name": "tonight, spray window, station check",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "x": 650,
+    "y": 180,
+    "wires": []
+  }
+]

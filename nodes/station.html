@@ -1,0 +1,61 @@
+<script type="text/javascript">
+  RED.nodes.registerType("nuasense-station", {
+    category: "NuaSense",
+    color: "#dbf5ee",
+    defaults: {
+      name: { value: "" },
+      server: { value: "ingest.nuasense.com", required: true },
+      deviceId: { value: "" }
+    },
+    credentials: {
+      token: { type: "password" }
+    },
+    inputs: 1,
+    outputs: 1,
+    icon: "font-awesome/fa-cloud-upload",
+    label: function () { return this.name || "NuaSense station"; },
+    paletteLabel: "station → NuaSense"
+  });
+</script>
+
+<script type="text/html" data-template-name="nuasense-station">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="North field">
+  </div>
+  <div class="form-row">
+    <label for="node-input-token"><i class="fa fa-key"></i> Station path</label>
+    <input type="password" id="node-input-token" placeholder="kw7n-4hpd-x2vt">
+  </div>
+  <div class="form-tips">
+    The token from the station's path in the NuaSense console (External stations → Add a station → the value after <code>/station/</code>). Shown once there; this node keeps it as a credential.
+  </div>
+  <div class="form-row">
+    <label for="node-input-server"><i class="fa fa-server"></i> Server</label>
+    <input type="text" id="node-input-server" placeholder="ingest.nuasense.com">
+  </div>
+  <div class="form-row">
+    <label for="node-input-deviceId"><i class="fa fa-microchip"></i> Device id</label>
+    <input type="text" id="node-input-deviceId" placeholder="leave empty to use this node's id">
+  </div>
+  <div class="form-tips">
+    Names the sending device. The station's path is bound to the first device that uses it, so keep this stable.
+  </div>
+</script>
+
+<script type="text/html" data-help-name="nuasense-station">
+  <p>Sends one reading to NuaSense, exactly as an Ecowitt console would.</p>
+  <h3>Input</h3>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">object</span></dt>
+    <dd>Metric reading: <code>temperature</code> (°C), <code>humidity</code> (%), <code>pressure</code> (hPa, station level), <code>wind_speed</code> and <code>wind_gusts</code> (m/s), <code>wind_direction</code> (°), <code>rain_total_mm</code> (a counter that only grows), <code>solar_wm2</code> or <code>light_lux</code>, <code>uv</code>, optional <code>time</code> (ISO 8601; now when absent). Missing values are simply not sent.</dd>
+  </dl>
+  <h3>Output</h3>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">object</span></dt>
+    <dd><code>status</code> (HTTP status from the receiver), <code>body</code>, and <code>sent</code> (the form fields that went out).</dd>
+  </dl>
+  <h3>Details</h3>
+  <p>Send at most one reading a minute: the receiver keeps one per station per minute. Rain goes in as a running total in millimetres; NuaSense turns it into per-reading increments.</p>
+  <p>Your data: NuaSense stores the readings and computes your forecast, spray windows and risks from them; uses them aggregated and anonymised to improve forecasts and models for everyone; never passes them on individually without your opt-in. Disconnect the station in the console at any time and have its data deleted.</p>
+</script>
