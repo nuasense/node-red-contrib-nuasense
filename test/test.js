@@ -27,9 +27,9 @@ check("metric in, Ecowitt out", () => {
 });
 
 check("lux becomes W/m² when that is all there is", () => {
-  const f = toEcowitt({ light_lux: 12670 }, { deviceId: "x" });
+  const f = toEcowitt({ light_lux: 12000 }, { deviceId: "x" });
   assert.strictEqual(f.solarradiation, "100");
-  assert.strictEqual(toEcowitt({ light_lux: 12670, solar_wm2: 90 }, { deviceId: "x" }).solarradiation, "90");
+  assert.strictEqual(toEcowitt({ light_lux: 12000, solar_wm2: 90 }, { deviceId: "x" }).solarradiation, "90");
 });
 
 check("missing values are not sent, junk is ignored", () => {
